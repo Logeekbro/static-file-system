@@ -1,0 +1,7 @@
+server:
+  port: 11112
+spring:
+  servlet:
+    multipart:
+      max-file-size: 3MB
+      max-request-size: 6MB

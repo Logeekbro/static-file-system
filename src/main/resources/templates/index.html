@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>静态文件管理</title>
+    <style>
+        main{
+            width: 80%;
+            height: 90%;
+            margin: 5% 10%;
+            /*border: 1px solid black;*/
+        }
+        #upload{
+            width: 25%;
+        }
+    </style>
+    <link href="http://150.158.18.29/webstatic/index.css" rel="stylesheet">
+</head>
+<script src="http://150.158.18.29/webstatic/vue.min.js"></script>
+
+<body>
+    <main id="main">
+        <div id="upload">
+            <el-upload
+                    class="upload-demo"
+                    ref="upload"
+                    action="/file/upload"
+                    :on-success="on_success"
+                    :on-error="on_error"
+                    :on-preview="handlePreview"
+                    :on-remove="handleRemove"
+                    :file-list="fileList"
+                    :auto-upload="false"
+                    :multiple="true">
+                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                <div slot="tip" class="el-upload__tip">单个文件大小不超过3MB</div>
+            </el-upload>
+        </div>
+        <el-divider></el-divider>
+        <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item>
+            <el-breadcrumb-item>活动列表</el-breadcrumb-item>
+            <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+        </el-breadcrumb>
+        <div id="fileTable">
+            <el-table
+                    ref="multipleTable"
+                    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+                    tooltip-effect="dark"
+                    style="width: 100%"
+                    @selection-change="handleSelectionChange">
+                <el-table-column
+                        type="selection"
+                        width="55">
+                </el-table-column>
+                <el-table-column
+                        prop="date"
+                        label="日期"
+                        width="120">
+<!--                    <template slot-scope="scope">{{ scope.row.date }}</template>-->
+                </el-table-column>
+                <el-table-column
+                        prop="name"
+                        label="姓名"
+                        width="120">
+                </el-table-column>
+                <el-table-column
+                        prop="address"
+                        label="地址"
+                        show-overflow-tooltip>
+                </el-table-column>
+                <el-table-column
+                        align="right">
+                    <template slot="header" slot-scope="scope">
+                        <el-input
+                                v-model="search"
+                                size="mini"
+                                placeholder="输入关键字搜索"/>
+                    </template>
+                    <template slot-scope="scope">
+                        <el-button
+                                size="mini"
+                                @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+                        <el-button
+                                size="mini"
+                                type="danger"
+                                @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </div>
+    </main>
+</body>
+<script src="http://150.158.18.29/webstatic/index.js"></script>
+<script>
+    var v = new Vue({
+        el: "#main",
+        data() {
+            return {
+                "fileList": [],
+                "tableData": [{
+                    date: '2016-05-02',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1518 弄'
+                }, {
+                    date: '2016-05-04',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1517 弄'
+                }, {
+                    date: '2016-05-01',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1519 弄'
+                }, {
+                    date: '2016-05-03',
+                    name: '王小虎',
+                    address: '上海市普陀区金沙江路 1516 弄'
+                }],
+                "search": ""
+            }
+        },
+        methods: {
+            clearFileList(){
+                this.fileList = []
+            },
+            on_success(){
+                setTimeout(this.clearFileList, 1200)
+            },
+            on_error(err){
+                console.log(err)
+                this.$message({
+                    message: '上传失败！',
+                    type: 'error',
+                    duration: 1200
+                });
+            },
+            submitUpload() {
+                this.$refs.upload.submit();
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handlePreview(file) {
+                console.log(file);
+            },
+            handleSelectionChange(){
+
+            }
+
+        }
+    })
+</script>
+</html>
