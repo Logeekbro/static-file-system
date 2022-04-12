@@ -1,5 +1,7 @@
 package com.db.sfs.entity;
 
+import com.db.sfs.common.GlobalVars;
+
 public class DBFile {
     private String fileName;
     private String url;
@@ -32,6 +34,10 @@ public class DBFile {
     }
 
     public void setUrl(String url) {
+        url = url.replace(GlobalVars.BASE_DIR, "");
+        if(GlobalVars.FILE_SEP.equals("\\")){
+            url = url.replace("\\", "/");
+        }
         this.url = url;
     }
 

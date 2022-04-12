@@ -8,14 +8,12 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Component
-public class ListFileHandler {
+public class FileListHandler {
 
     public boolean isDir(String path){
         return new File(path).isDirectory();
@@ -24,30 +22,37 @@ public class ListFileHandler {
     public DBDir getFileList(String path) throws IOException {
         DBDir dbDir = new DBDir();
         File dir = new File(path);
-        dbDir.setDirPath(path);
+        dbDir.setDirPath(path.replace(GlobalVars.BASE_DIR, ""));
         dbDir.setDirName(dir.getName());
-        dbDir.setCreateTime(Files.readAttributes(Paths.get(path), BasicFileAttributes.class).creationTime().toMillis());
+        dbDir.setCreateTime(FileInfoHandler.getFileCreateTime(dir));
         int fileCount = 0;
-        List<DBFile> fileList = new ArrayList<>(300);
-        List<DBDir> dirList = new ArrayList<>(200);
+        // 指定List初始大小，防止多次扩容影响性能
+        List<DBFile> fileList = new ArrayList<>(100);
+        List<DBDir> dirList = new ArrayList<>(50);
         for(File file : Objects.requireNonNull(dir.listFiles())){
             if(file.isFile()){
                 DBFile dbFile = new DBFile();
                 dbFile.setFileName(file.getName());
-                String url = GlobalVars.FILE_HOST + path + GlobalVars.FILE_SEP + file.getName();
-                url = url.replace(GlobalVars.BASE_DIR, "").replace("\\", "/");
+                // 拼接url
+                String url = null;
+                if(dbDir.getDirPath().equals("")){
+                    url = GlobalVars.FILE_HOST + path + file.getName();
+                }
+                else {
+                    url = GlobalVars.FILE_HOST + path + GlobalVars.FILE_SEP + file.getName();
+                }
                 dbFile.setUrl(url);
                 dbFile.setSize(Files.size(file.toPath()));
-                dbFile.setCreateTime(Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class).creationTime().toMillis());
-                dbFile.setLastModifiedTime(file.lastModified());
+                dbFile.setCreateTime(FileInfoHandler.getFileCreateTime(file));
+                dbFile.setLastModifiedTime(file.lastModified() / 1000L);
                 fileList.add(dbFile);
             }
             else {
                 DBDir dbDir1 = new DBDir();
                 dbDir1.setDirPath(file.getPath().replace(GlobalVars.BASE_DIR, ""));
                 dbDir1.setDirName(file.getName());
-                dbDir1.setCreateTime(Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class).creationTime().toMillis());
-                dbDir1.setFileCount(Objects.requireNonNull(file.listFiles()).length);
+                dbDir1.setCreateTime(FileInfoHandler.getFileCreateTime(file));
+                dbDir1.setFileCount(FileInfoHandler.getDirLength(file));
                 dirList.add(dbDir1);
             }
             fileCount++;
@@ -59,7 +64,10 @@ public class ListFileHandler {
     }
 
     public static void main(String[] args) throws IOException {
-        ListFileHandler listFileHandler = new ListFileHandler();
-        System.out.println(listFileHandler.getFileList(GlobalVars.BASE_DIR + "AriaNg-1.2.3\\fonts"));
+        long start = System.currentTimeMillis();
+        FileListHandler fileListHandler = new FileListHandler();
+
+        System.out.println(fileListHandler.getFileList(GlobalVars.BASE_DIR + "AriaNg-1.2.3\\views"));
+        System.out.println("耗时：" + (System.currentTimeMillis() - start) + "ms");
     }
 }

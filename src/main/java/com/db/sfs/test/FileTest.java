@@ -1,22 +1,20 @@
 package com.db.sfs.test;
 
-import com.db.sfs.filehandler.ListFileHandler;
+import com.db.sfs.filehandler.FileListHandler;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 
 
 class FileTest {
 
     @Autowired
-    ListFileHandler listFileHandler;
+    FileListHandler fileListHandler;
 
     @Test
     public void test1() throws IOException {
-        System.out.println(listFileHandler.getFileList(""));
+        System.out.println(fileListHandler.getFileList(""));
 
     }
 

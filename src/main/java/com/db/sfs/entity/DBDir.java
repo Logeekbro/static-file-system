@@ -27,9 +27,7 @@ public class DBDir {
         return dirName;
     }
 
-    public void setDirName(String dirName) {
-        this.dirName = dirName;
-    }
+    public void setDirName(String dirName) {this.dirName = dirName; }
 
     public String getDirPath() {
         return dirPath;
