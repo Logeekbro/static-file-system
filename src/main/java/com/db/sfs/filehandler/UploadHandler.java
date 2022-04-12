@@ -17,6 +17,9 @@ public class UploadHandler {
             fileName = file.getOriginalFilename();
             filePath = GlobalVars.BASE_DIR + fileName;
             File distFile = new File(filePath);
+            if(distFile.exists()){
+                throw new Exception("文件已存在");
+            }
             Files.copy(file.getInputStream(), distFile.toPath());
             return true;
         }
