@@ -7,7 +7,7 @@
         main{
             width: 80%;
             height: 90%;
-            margin: 5% 5%;
+            margin: 2% 5%;
             /*border: 1px solid black;*/
         }
         #upload{
@@ -70,13 +70,13 @@
                         min-width="100">
                     <template slot-scope="scope">
                         <span v-if="scope.row.type == 'file'">
-                            <el-link :href="scope.row.url" icon="el-icon-document" type="primary" v-text="scope.row.fileName">
-
+                            <el-link :href="scope.row.url" icon="el-icon-document" type="primary">
+                                {{scope.row.fileName}}
                             </el-link>
                         </span>
                         <span v-else-if="scope.row.type == 'dir'">
-                            <el-link :href="'/?path=' + encodeURIComponent(scope.row.dirPath)" icon="el-icon-folder" type="warning"
-                            v-text="scope.row.dirName">
+                            <el-link :href="'/?path=' + encodeURIComponent(scope.row.dirPath)" icon="el-icon-folder" type="warning">
+                                {{scope.row.dirName}}
                             </el-link>
                         </span>
                     </template>
@@ -111,7 +111,7 @@
                     <template slot-scope="scope">
                         <el-button
                                 size="mini"
-                                @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+                                @click="handleEdit(scope.$index, scope.row)">复制链接</el-button>
                         <el-button
                                 size="mini"
                                 type="danger"
@@ -201,6 +201,37 @@
                 console.log(file);
             },
             handleSelectionChange(){
+
+            },
+            handleEdit(index, rowData){
+                // var inp = document.createElement("input");
+                //
+                // if(rowData.type === "file"){
+                //     inp.setAttribute("value", rowData.url);
+                // }
+                // else {
+                //     inp.setAttribute("value", rowData.dirPath);
+                // }
+                // document.body.appendChild(inp);
+                // inp.select();
+                // if(document.execCommand("Copy")){
+                //     this.$message({
+                //         message: '复制成功！',
+                //         type: 'success',
+                //         duration: 1200
+                //     });
+                // }
+                if(rowData.type === "file"){
+                    navigator.clipboard.writeText(rowData.url);
+                }
+                else {
+                    navigator.clipboard.writeText(rowData.dirPath);
+                }
+                this.$message({
+                    message: '复制成功！',
+                    type: 'success',
+                    duration: 1000
+                });
 
             },
             getFormatDate(stamp) {
