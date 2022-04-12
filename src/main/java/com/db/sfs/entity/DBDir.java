@@ -8,17 +8,19 @@ public class DBDir {
     private final String type = "dir";
     private int fileCount;
     private long createTime;
+    private long lastModifiedTime;
     private List<DBFile> files;
     private List<DBDir> dirs;
 
     public DBDir() {
     }
 
-    public DBDir(String dirName, String dirPath, int fileCount, long createTime, List<DBFile> files, List<DBDir> dirs) {
+    public DBDir(String dirName, String dirPath, int fileCount, long createTime, long lastModifiedTime, List<DBFile> files, List<DBDir> dirs) {
         this.dirName = dirName;
         this.dirPath = dirPath;
         this.fileCount = fileCount;
         this.createTime = createTime;
+        this.lastModifiedTime = lastModifiedTime;
         this.files = files;
         this.dirs = dirs;
     }
@@ -73,6 +75,14 @@ public class DBDir {
         return type;
     }
 
+    public long getLastModifiedTime() {
+        return lastModifiedTime;
+    }
+
+    public void setLastModifiedTime(long lastModifiedTime) {
+        this.lastModifiedTime = lastModifiedTime;
+    }
+
     @Override
     public String toString() {
         return "DBDir{" +
@@ -81,6 +91,7 @@ public class DBDir {
                 ", type='" + type + '\'' +
                 ", fileCount=" + fileCount +
                 ", createTime=" + createTime +
+                ", lastModifiedTime=" + lastModifiedTime +
                 ", files=" + files +
                 ", dirs=" + dirs +
                 '}';
