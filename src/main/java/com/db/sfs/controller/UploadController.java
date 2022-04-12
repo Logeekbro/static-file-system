@@ -19,7 +19,8 @@ public class UploadController {
 
     @PostMapping("/upload")
     @ResponseBody
-    public Result<String> upload(MultipartFile file){
+    public Result<String> upload(MultipartFile file, String path){
+        System.out.println("upload path:" + path);
         Result<String> result = new Result<>();
         if(fileUploadService.uploadMultipartFiles(file)){
             result.ok();
