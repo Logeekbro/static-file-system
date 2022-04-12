@@ -13,7 +13,7 @@ public class FileUploadServiceImpl implements FileUploadService {
     UploadHandler uploadHandler;
 
     @Override
-    public boolean uploadMultipartFiles(MultipartFile file) {
-        return uploadHandler.uploadMultipartFiles(file);
+    public boolean uploadMultipartFiles(MultipartFile file, String path) {
+        return uploadHandler.uploadMultipartFiles(file, path);
     }
 }

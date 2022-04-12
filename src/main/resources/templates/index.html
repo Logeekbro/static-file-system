@@ -26,6 +26,7 @@
                     class="upload-demo"
                     ref="upload"
                     action="/file/upload"
+                    :data="uploadData"
                     :on-success="on_success"
                     :on-error="on_error"
                     :on-preview="handlePreview"
@@ -129,7 +130,8 @@
                 "currentDirPath": "",
                 "dirInfo": {},
                 "fileSep": "/",
-                "pathList": []
+                "pathList": [],
+                "uploadData": {}
             }
         },
         methods: {
@@ -145,8 +147,8 @@
                     this.dirInfo.name = data.data.dirName;
                     this.dirInfo.path = data.data.dirPath;
                     this.uploadData = {
-                        "path": this.dirInfo.path
-                    }
+                        "path": this.dirInfo.path + this.fileSep
+                    };
                     this.dirInfo.fileCount = data.data.fileCount
                     this.tableData = data.data.dirs.concat(data.data.files);
                     this.getRoutePath();
@@ -163,7 +165,8 @@
                 this.fileList = [];
             },
             on_success(){
-                setTimeout(this.clearFileList, 1200)
+                setTimeout(this.clearFileList, 1200);
+                this.getFileList();
             },
             on_error(err){
                 console.log(err)

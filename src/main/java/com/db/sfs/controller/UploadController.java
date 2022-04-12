@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,10 +20,10 @@ public class UploadController {
 
     @PostMapping("/upload")
     @ResponseBody
-    public Result<String> upload(MultipartFile file, String path){
+    public Result<String> upload(MultipartFile file, @RequestParam(name = "path", defaultValue = "") String path){
         System.out.println("upload path:" + path);
         Result<String> result = new Result<>();
-        if(fileUploadService.uploadMultipartFiles(file)){
+        if(fileUploadService.uploadMultipartFiles(file, path)){
             result.ok();
         }
         else {

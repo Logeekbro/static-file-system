@@ -19,7 +19,6 @@ public class FileListServiceImpl implements FileListService {
             System.out.println("error path:" + GlobalVars.BASE_DIR + path);
             throw new Exception("路径有误");
         }
-        System.out.println("list path:" + GlobalVars.BASE_DIR + path);
         return fileListHandler.getFileList(GlobalVars.BASE_DIR + path);
     }
 }
