@@ -7,7 +7,7 @@
         main{
             width: 80%;
             height: 90%;
-            margin: 5% 10%;
+            margin: 5% 5%;
             /*border: 1px solid black;*/
         }
         #upload{
@@ -47,30 +47,45 @@
         <div id="fileTable">
             <el-table
                     ref="multipleTable"
-                    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+                    :data="tableData.filter(data => !search || data.fileName.toLowerCase().includes(search.toLowerCase()))"
                     tooltip-effect="dark"
+                    show-overflow-tooltip="true"
                     style="width: 100%"
                     @selection-change="handleSelectionChange">
+
                 <el-table-column
                         type="selection"
                         width="55">
                 </el-table-column>
+
                 <el-table-column
-                        prop="date"
-                        label="日期"
-                        width="120">
-<!--                    <template slot-scope="scope">{{ scope.row.date }}</template>-->
+                        label="名称"
+                        min-width="100">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.type == 'file'">
+                            <el-link href="#" icon="el-icon-document" type="primary">{{ scope.row.fileName }}</el-link>
+                        </span>
+                        <span v-else-if="scope.row.type == 'dir'">
+                            <el-link href="#" icon="el-icon-folder" type="warning">{{ scope.row.dirName }}</el-link>
+                        </span>
+                    </template>
                 </el-table-column>
+
                 <el-table-column
-                        prop="name"
-                        label="姓名"
-                        width="120">
+                        label="创建时间"
+                        min-width="50">
+                    <template slot-scope="scope">{{ getFormatDate(scope.row.createTime) }}</template>
                 </el-table-column>
+
                 <el-table-column
-                        prop="address"
-                        label="地址"
-                        show-overflow-tooltip>
+                        label="最后修改时间|文件数量"
+                        min-width="50">
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.type == 'file'"> {{ getFormatDate(scope.row.lastModifiedTime) }} </span>
+                        <span v-if="scope.row.type == 'dir'"> {{scope.row.fileCount}}个文件</span>
+                    </template>
                 </el-table-column>
+
                 <el-table-column
                         align="right">
                     <template slot="header" slot-scope="scope">
@@ -93,36 +108,41 @@
         </div>
     </main>
 </body>
+<script src="http://150.158.18.29/webstatic/axios.min.js"></script>
 <script src="http://150.158.18.29/webstatic/index.js"></script>
+<script src="http://150.158.18.29/webstatic/common.js"></script>
 <script>
     var v = new Vue({
         el: "#main",
         data() {
             return {
                 "fileList": [],
-                "tableData": [{
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1517 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1519 弄'
-                }, {
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1516 弄'
-                }],
+                "tableData": [],
                 "search": ""
             }
         },
         methods: {
+            getFileList(){
+                axios({
+                    method: "get",
+                    url : "/file/getFileList",
+                    data: {
+                        path:getQueryVariable("path")
+                    }
+                }).then(res => {
+                    var data = res.data;
+                    this.tableData = data.data.dirs.concat(data.data.files);
+                    console.log(this.tableData);
+                }).catch(error => {
+                    this.$message({
+                        message: '获取文件信息失败:' + error.message,
+                        type: 'error',
+                        duration: 1800
+                    });
+                });
+            },
             clearFileList(){
-                this.fileList = []
+                this.fileList = [];
             },
             on_success(){
                 setTimeout(this.clearFileList, 1200)
@@ -146,8 +166,37 @@
             },
             handleSelectionChange(){
 
+            },
+            getFormatDate(stamp) {
+                var date = new Date(stamp);
+                var seperator1 = "-";
+                var seperator2 = ":";
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var strDate = date.getDate();
+                var hour = date.getHours();
+                var min = date.getMinutes();
+                var sec = date.getSeconds();
+                // if (month >= 1 && month <= 9) {
+                //     month = "0" + month;
+                // }
+                // if (strDate >= 0 && strDate <= 9) {
+                //     strDate = "0" + strDate;
+                // }
+                if(min >= 0 && min <= 9){
+                    min = "0" + min
+                }
+                if(sec >= 0 && sec <= 9){
+                    sec = "0" + sec
+                }
+                var currentdate = year + seperator1 + month + seperator1 + strDate + " " +
+                hour + seperator2 + min + seperator2 + sec;
+                return currentdate;
             }
 
+        },
+        created: function (){
+            this.getFileList();
         }
     })
 </script>
