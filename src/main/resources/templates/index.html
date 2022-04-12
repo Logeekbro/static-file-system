@@ -20,6 +20,7 @@
 
 <body>
     <main id="main">
+        <!--文件上传-->
         <div id="upload">
             <el-upload
                     class="upload-demo"
@@ -37,13 +38,18 @@
                 <div slot="tip" class="el-upload__tip">单个文件大小不超过3MB</div>
             </el-upload>
         </div>
+
+        <!--路径导航-->
         <el-divider></el-divider>
-        <el-breadcrumb separator="/">
-            <el-breadcrumb-item :to="{ path: '/' }">首页</el-breadcrumb-item>
-            <el-breadcrumb-item><a href="/">活动管理</a></el-breadcrumb-item>
-            <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-            <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+        <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px">
+            <el-breadcrumb-item :to="{ path: '/' }"><a href="/">~</a></el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: '/' }" v-for="path in pathList">
+                <a :href="path.url">{{path.name}}</a>
+            </el-breadcrumb-item>
+
         </el-breadcrumb>
+
+        <!--文件信息列表-->
         <div id="fileTable">
             <el-table
                     ref="multipleTable"
@@ -63,10 +69,10 @@
                         min-width="100">
                     <template slot-scope="scope">
                         <span v-if="scope.row.type == 'file'">
-                            <el-link href="#" icon="el-icon-document" type="primary">{{ scope.row.fileName }}</el-link>
+                            <el-link :href="scope.row.url" icon="el-icon-document" type="primary">{{ scope.row.fileName }}</el-link>
                         </span>
                         <span v-else-if="scope.row.type == 'dir'">
-                            <el-link href="#" icon="el-icon-folder" type="warning">{{ scope.row.dirName }}</el-link>
+                            <el-link :href="'/?path=' + encodeURIComponent(scope.row.dirPath)" icon="el-icon-folder" type="warning">{{ scope.row.dirName }}</el-link>
                         </span>
                     </template>
                 </el-table-column>
@@ -89,10 +95,11 @@
                 <el-table-column
                         align="right">
                     <template slot="header" slot-scope="scope">
-                        <el-input
-                                v-model="search"
-                                size="mini"
-                                placeholder="输入关键字搜索"/>
+<!--                        <el-input-->
+<!--                                v-model="search"-->
+<!--                                size="mini"-->
+<!--                                placeholder="输入关键字搜索"/>-->
+                        共 {{dirInfo.fileCount}} 个文件
                     </template>
                     <template slot-scope="scope">
                         <el-button
@@ -118,7 +125,11 @@
             return {
                 "fileList": [],
                 "tableData": [],
-                "search": ""
+                "search": "",
+                "currentDirPath": "",
+                "dirInfo": {},
+                "fileSep": "/",
+                "pathList": []
             }
         },
         methods: {
@@ -126,18 +137,25 @@
                 axios({
                     method: "get",
                     url : "/file/getFileList",
-                    data: {
-                        path:getQueryVariable("path")
+                    params: {
+                        path:this.currentDirPath
                     }
                 }).then(res => {
                     var data = res.data;
+                    this.dirInfo.name = data.data.dirName;
+                    this.dirInfo.path = data.data.dirPath;
+                    this.uploadData = {
+                        "path": this.dirInfo.path
+                    }
+                    this.dirInfo.fileCount = data.data.fileCount
                     this.tableData = data.data.dirs.concat(data.data.files);
-                    console.log(this.tableData);
+                    this.getRoutePath();
+
                 }).catch(error => {
                     this.$message({
                         message: '获取文件信息失败:' + error.message,
                         type: 'error',
-                        duration: 1800
+                        duration: 2500
                     });
                 });
             },
@@ -189,13 +207,45 @@
                 if(sec >= 0 && sec <= 9){
                     sec = "0" + sec
                 }
-                var currentdate = year + seperator1 + month + seperator1 + strDate + " " +
-                hour + seperator2 + min + seperator2 + sec;
+                var currentdate = year + seperator1 + month + seperator1 + strDate + "  " +
+                    hour + seperator2 + min + seperator2 + sec;
                 return currentdate;
+            },
+            getRoutePath(){
+                var dirInfo = this.dirInfo;
+                var fullpath = dirInfo.path;
+                var paths = fullpath.split(this.fileSep);
+                var len = paths.length;
+                var addPath = "";
+                var pl = []
+                for(var i = 0;i < len;i++){
+                    if(i !== 0){
+                        addPath += this.fileSep + paths[i];
+                    }
+                    else{
+                        addPath += paths[i];
+                    }
+                    po = {
+                        "name": paths[i],
+                        "url": "/?path=" + encodeURIComponent(addPath)
+                    };
+                    pl.push(po);
+                }
+                this.pathList = pl;
+            },
+            getFileSep(){
+                axios({
+                    method: "get",
+                    url: "/env/getFileSep"
+                }).then(res => {
+                    this.fileSep = res.data;
+                });
             }
-
         },
-        created: function (){
+
+        mounted: function (){
+            this.currentDirPath = getQueryVariable("path")
+            this.getFileSep();
             this.getFileList();
         }
     })

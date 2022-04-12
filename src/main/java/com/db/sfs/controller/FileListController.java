@@ -9,7 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 @Controller
 @RequestMapping("/file")
@@ -20,11 +24,10 @@ public class FileListController {
 
     @GetMapping("/getFileList")
     @ResponseBody
-    public Result<DBDir> getFileList(String path){
+    public Result<DBDir> getFileList(@RequestParam(value = "path", defaultValue = "") String path) throws UnsupportedEncodingException {
         Result<DBDir> result = new Result<>();
-        if(path == null){
-            path = "";
-        }
+        // 将前端经过URL编码的path解码
+        path = URLDecoder.decode(path,"utf-8");
         try{
             DBDir fileList = fileListService.getFileList(path);
             result.ok();

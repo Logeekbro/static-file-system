@@ -10,12 +10,11 @@ import java.io.IOException;
 @SpringBootTest
 class StaticFileSystemApplicationTests {
 
-    @Autowired
-    FileListHandler fileListHandler;
+
 
     @Test
     void contextLoads() throws IOException {
-        System.out.println(fileListHandler.getFileList(""));
+
     }
 
 }

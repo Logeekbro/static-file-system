@@ -16,8 +16,10 @@ public class FileListServiceImpl implements FileListService {
     @Override
     public DBDir getFileList(String path) throws Exception {
         if(!fileListHandler.isDir(GlobalVars.BASE_DIR + path)){
+            System.out.println("error path:" + GlobalVars.BASE_DIR + path);
             throw new Exception("路径有误");
         }
+        System.out.println("list path:" + GlobalVars.BASE_DIR + path);
         return fileListHandler.getFileList(GlobalVars.BASE_DIR + path);
     }
 }
