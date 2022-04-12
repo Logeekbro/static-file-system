@@ -45,7 +45,7 @@
         <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px">
             <el-breadcrumb-item :to="{ path: '/' }"><a href="/">~</a></el-breadcrumb-item>
             <el-breadcrumb-item :to="{ path: '/' }" v-for="path in pathList">
-                <a :href="path.url">{{path.name}}</a>
+                <a :href="path.url" v-text="path.name"></a>
             </el-breadcrumb-item>
 
         </el-breadcrumb>
@@ -70,26 +70,32 @@
                         min-width="100">
                     <template slot-scope="scope">
                         <span v-if="scope.row.type == 'file'">
-                            <el-link :href="scope.row.url" icon="el-icon-document" type="primary">{{ scope.row.fileName }}</el-link>
+                            <el-link :href="scope.row.url" icon="el-icon-document" type="primary" v-text="scope.row.fileName">
+
+                            </el-link>
                         </span>
                         <span v-else-if="scope.row.type == 'dir'">
-                            <el-link :href="'/?path=' + encodeURIComponent(scope.row.dirPath)" icon="el-icon-folder" type="warning">{{ scope.row.dirName }}</el-link>
+                            <el-link :href="'/?path=' + encodeURIComponent(scope.row.dirPath)" icon="el-icon-folder" type="warning"
+                            v-text="scope.row.dirName">
+                            </el-link>
                         </span>
                     </template>
                 </el-table-column>
 
                 <el-table-column
-                        label="创建时间"
+                        label="文件大小|文件数量"
                         min-width="50">
-                    <template slot-scope="scope">{{ getFormatDate(scope.row.createTime) }}</template>
+                    <template slot-scope="scope">
+                        <span v-if="scope.row.type == 'file'" v-text="getFileSize(scope.row.size)"></span>
+                        <span v-if="scope.row.type == 'dir'" v-text="scope.row.fileCount + '个文件'"></span>
+                    </template>
                 </el-table-column>
 
                 <el-table-column
-                        label="最后修改时间|文件数量"
+                        label="最后修改时间"
                         min-width="50">
                     <template slot-scope="scope">
-                        <span v-if="scope.row.type == 'file'"> {{ getFormatDate(scope.row.lastModifiedTime) }} </span>
-                        <span v-if="scope.row.type == 'dir'"> {{scope.row.fileCount}}个文件</span>
+                        <span v-text="getFormatDate(scope.row.lastModifiedTime)"></span>
                     </template>
                 </el-table-column>
 
@@ -100,7 +106,7 @@
 <!--                                v-model="search"-->
 <!--                                size="mini"-->
 <!--                                placeholder="输入关键字搜索"/>-->
-                        共 {{dirInfo.fileCount}} 个文件
+                        <span v-text="'共' + dirInfo.fileCount + '个文件'"></span>
                     </template>
                     <template slot-scope="scope">
                         <el-button
@@ -144,14 +150,23 @@
                     }
                 }).then(res => {
                     var data = res.data;
-                    this.dirInfo.name = data.data.dirName;
-                    this.dirInfo.path = data.data.dirPath;
-                    this.uploadData = {
-                        "path": this.dirInfo.path + this.fileSep
-                    };
-                    this.dirInfo.fileCount = data.data.fileCount
-                    this.tableData = data.data.dirs.concat(data.data.files);
-                    this.getRoutePath();
+                    if(data.success){
+                        this.dirInfo.name = data.data.dirName;
+                        this.dirInfo.path = data.data.dirPath;
+                        this.uploadData = {
+                            "path": this.dirInfo.path + this.fileSep
+                        };
+                        this.dirInfo.fileCount = data.data.fileCount
+                        this.tableData = data.data.dirs.concat(data.data.files);
+                        this.getRoutePath();
+                    }
+                    else{
+                        this.$message({
+                            message: data.msg,
+                            type: 'error',
+                            duration: 2500
+                        });
+                    }
 
                 }).catch(error => {
                     this.$message({

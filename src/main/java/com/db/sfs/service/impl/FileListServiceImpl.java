@@ -17,7 +17,7 @@ public class FileListServiceImpl implements FileListService {
     public DBDir getFileList(String path) throws Exception {
         if(!fileListHandler.isDir(GlobalVars.BASE_DIR + path)){
             System.out.println("error path:" + GlobalVars.BASE_DIR + path);
-            throw new Exception("路径有误");
+            throw new Exception("无效的路径");
         }
         return fileListHandler.getFileList(GlobalVars.BASE_DIR + path);
     }

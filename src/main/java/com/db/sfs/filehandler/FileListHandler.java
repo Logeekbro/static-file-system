@@ -25,11 +25,13 @@ public class FileListHandler {
         dbDir.setDirPath(path.replace(GlobalVars.BASE_DIR, ""));
         dbDir.setDirName(dir.getName());
         dbDir.setCreateTime(FileInfoHandler.getFileCreateTime(dir));
+        dbDir.setLastModifiedTime(dir.lastModified());
         int fileCount = 0;
         // 指定List初始大小，防止多次扩容影响性能
         List<DBFile> fileList = new ArrayList<>(100);
         List<DBDir> dirList = new ArrayList<>(50);
         for(File file : Objects.requireNonNull(dir.listFiles())){
+            // 对文件进行操作
             if(file.isFile()){
                 DBFile dbFile = new DBFile();
                 dbFile.setFileName(file.getName());
@@ -47,11 +49,13 @@ public class FileListHandler {
                 dbFile.setLastModifiedTime(file.lastModified());
                 fileList.add(dbFile);
             }
+            // 对子目录进行操作
             else {
                 DBDir dbDir1 = new DBDir();
                 dbDir1.setDirPath(file.getPath().replace(GlobalVars.BASE_DIR, ""));
                 dbDir1.setDirName(file.getName());
                 dbDir1.setCreateTime(FileInfoHandler.getFileCreateTime(file));
+                dbDir1.setLastModifiedTime(file.lastModified());
                 dbDir1.setFileCount(FileInfoHandler.getDirLength(file));
                 dirList.add(dbDir1);
             }
