@@ -44,7 +44,7 @@ public class FileListHandler {
                 dbFile.setUrl(url);
                 dbFile.setSize(Files.size(file.toPath()));
                 dbFile.setCreateTime(FileInfoHandler.getFileCreateTime(file));
-                dbFile.setLastModifiedTime(file.lastModified() / 1000L);
+                dbFile.setLastModifiedTime(file.lastModified());
                 fileList.add(dbFile);
             }
             else {

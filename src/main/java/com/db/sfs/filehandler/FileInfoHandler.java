@@ -11,7 +11,7 @@ public class FileInfoHandler {
 
 
     public static long getFileCreateTime(File file) throws IOException {
-        return Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class).creationTime().toMillis() / 1000L;
+        return Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class).creationTime().toMillis();
     }
 
     public static int getDirLength(File file){

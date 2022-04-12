@@ -69,6 +69,10 @@ public class DBDir {
         this.createTime = createTime;
     }
 
+    public String getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
         return "DBDir{" +

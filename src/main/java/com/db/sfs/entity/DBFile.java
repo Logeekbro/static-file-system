@@ -62,6 +62,10 @@ public class DBFile {
         return createTime;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public void setCreateTime(long createTime) {
         this.createTime = createTime;
     }
