@@ -110,8 +110,15 @@
                     </template>
                     <template slot-scope="scope">
                         <el-button
+                                v-if="scope.row.type === 'file'"
                                 size="mini"
+                                v-clipboard:copy="scope.row.url"
                                 @click="handleEdit(scope.$index, scope.row)">复制链接</el-button>
+                        <el-button
+                                v-if="scope.row.type === 'dir'"
+                                size="mini"
+                                v-clipboard:copy="scope.row.dirPath"
+                                @click="handleEdit(scope.$index, scope.row)">复制路径</el-button>
                         <el-button
                                 size="mini"
                                 type="danger"
@@ -125,6 +132,7 @@
 <script src="http://150.158.18.29/webstatic/axios.min.js"></script>
 <script src="http://150.158.18.29/webstatic/index.js"></script>
 <script src="http://150.158.18.29/webstatic/common.js"></script>
+<script src="http://150.158.18.29/webstatic/v-clipboard.min.js"></script>
 <script>
     var v = new Vue({
         el: "#main",
@@ -204,35 +212,11 @@
 
             },
             handleEdit(index, rowData){
-                // var inp = document.createElement("input");
-                //
-                // if(rowData.type === "file"){
-                //     inp.setAttribute("value", rowData.url);
-                // }
-                // else {
-                //     inp.setAttribute("value", rowData.dirPath);
-                // }
-                // document.body.appendChild(inp);
-                // inp.select();
-                // if(document.execCommand("Copy")){
-                //     this.$message({
-                //         message: '复制成功！',
-                //         type: 'success',
-                //         duration: 1200
-                //     });
-                // }
-                if(rowData.type === "file"){
-                    navigator.clipboard.writeText(rowData.url);
-                }
-                else {
-                    navigator.clipboard.writeText(rowData.dirPath);
-                }
                 this.$message({
                     message: '复制成功！',
                     type: 'success',
                     duration: 1000
                 });
-
             },
             getFormatDate(stamp) {
                 var date = new Date(stamp);

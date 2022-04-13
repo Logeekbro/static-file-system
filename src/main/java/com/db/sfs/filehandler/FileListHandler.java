@@ -25,10 +25,10 @@ public class FileListHandler {
         dbDir.setDirName(dir.getName());
         dbDir.setCreateTime(dir.getCreateTime());
         dbDir.setLastModifiedTime(dir.lastModified());
-        int fileCount = 0;
+        dbDir.setFileCount(FileInfoHandler.getDirLength(dir));
         // 指定List初始大小，防止多次扩容影响性能
         List<DBFile> fileList = new ArrayList<>(100);
-        List<DBDir> dirList = new ArrayList<>(50);
+        List<DBDir> dirList = new ArrayList<>(20);
         for(HyperFile file : Objects.requireNonNull(dir.listFiles())){
             // 对文件进行操作
             if(file.isFile()){
@@ -58,11 +58,9 @@ public class FileListHandler {
                 dbDir1.setFileCount(FileInfoHandler.getDirLength(file));
                 dirList.add(dbDir1);
             }
-            fileCount++;
         }
         dbDir.setFiles(fileList);
         dbDir.setDirs(dirList);
-        dbDir.setFileCount(fileCount);
         return dbDir;
     }
 
@@ -70,7 +68,7 @@ public class FileListHandler {
         long start = System.currentTimeMillis();
         FileListHandler fileListHandler = new FileListHandler();
 
-        System.out.println(fileListHandler.getFileList(GlobalVars.BASE_DIR + "AriaNg-1.2.3\\views"));
+        System.out.println(fileListHandler.getFileList(GlobalVars.BASE_DIR + ""));
         System.out.println("耗时：" + (System.currentTimeMillis() - start) + "ms");
     }
 }

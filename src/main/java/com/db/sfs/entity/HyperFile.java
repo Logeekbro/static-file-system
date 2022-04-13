@@ -10,7 +10,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 // 自定义文件类，为父类增加了createTime和size属性
 public class HyperFile extends File {
 
-    private long createTime = Files.readAttributes(Paths.get(this.getPath()), BasicFileAttributes.class).creationTime().toMillis();
+    private long createTime =
+            Files.readAttributes(Paths.get(this.getPath()), BasicFileAttributes.class).creationTime().toMillis();
     private long size = Files.size(this.toPath());
 
     public HyperFile(String pathname) throws IOException {
@@ -45,12 +46,19 @@ public class HyperFile extends File {
         return fs;
     }
 
-    public long getCreateTime() throws IOException {
+    public long getCreateTime() {
+        return createTime;
+    }
 
-        return this.createTime;
+    public void setCreateTime(long createTime) {
+        this.createTime = createTime;
     }
 
     public long getSize() {
         return size;
+    }
+
+    public void setSize(long size) {
+        this.size = size;
     }
 }
