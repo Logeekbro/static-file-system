@@ -16,7 +16,7 @@ public class FileListServiceImpl implements FileListService {
 
     @Override
     public DBDir getFileList(String path) throws Exception {
-        if(!FileInfoHandler.isDir(GlobalVars.BASE_DIR + path)){
+        if(!FileInfoHandler.isDirPath(GlobalVars.BASE_DIR + path)){
             System.out.println("error path:" + GlobalVars.BASE_DIR + path);
             throw new Exception("无效的路径");
         }

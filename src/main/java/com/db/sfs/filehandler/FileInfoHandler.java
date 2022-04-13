@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class FileInfoHandler {
 
-    public static boolean isDir(String path){
+    public static boolean isDirPath(String path){
         return new File(path).isDirectory();
     }
 
