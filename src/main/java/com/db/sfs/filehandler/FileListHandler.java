@@ -3,6 +3,7 @@ package com.db.sfs.filehandler;
 import com.db.sfs.common.GlobalVars;
 import com.db.sfs.entity.DBDir;
 import com.db.sfs.entity.DBFile;
+import com.db.sfs.entity.HyperFile;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -15,22 +16,20 @@ import java.util.Objects;
 @Component
 public class FileListHandler {
 
-    public boolean isDir(String path){
-        return new File(path).isDirectory();
-    }
+
 
     public DBDir getFileList(String path) throws IOException {
         DBDir dbDir = new DBDir();
-        File dir = new File(path);
+        HyperFile dir = new HyperFile(path);
         dbDir.setDirPath(path.replace(GlobalVars.BASE_DIR, ""));
         dbDir.setDirName(dir.getName());
-        dbDir.setCreateTime(FileInfoHandler.getFileCreateTime(dir));
+        dbDir.setCreateTime(dir.getCreateTime());
         dbDir.setLastModifiedTime(dir.lastModified());
         int fileCount = 0;
         // 指定List初始大小，防止多次扩容影响性能
         List<DBFile> fileList = new ArrayList<>(100);
         List<DBDir> dirList = new ArrayList<>(50);
-        for(File file : Objects.requireNonNull(dir.listFiles())){
+        for(HyperFile file : Objects.requireNonNull(dir.listFiles())){
             // 对文件进行操作
             if(file.isFile()){
                 DBFile dbFile = new DBFile();
@@ -44,8 +43,8 @@ public class FileListHandler {
                     url = GlobalVars.FILE_HOST + path + GlobalVars.FILE_SEP + file.getName();
                 }
                 dbFile.setUrl(url);
-                dbFile.setSize(Files.size(file.toPath()));
-                dbFile.setCreateTime(FileInfoHandler.getFileCreateTime(file));
+                dbFile.setSize(file.getSize());
+                dbFile.setCreateTime(file.getCreateTime());
                 dbFile.setLastModifiedTime(file.lastModified());
                 fileList.add(dbFile);
             }
@@ -54,7 +53,7 @@ public class FileListHandler {
                 DBDir dbDir1 = new DBDir();
                 dbDir1.setDirPath(file.getPath().replace(GlobalVars.BASE_DIR, ""));
                 dbDir1.setDirName(file.getName());
-                dbDir1.setCreateTime(FileInfoHandler.getFileCreateTime(file));
+                dbDir1.setCreateTime(file.getCreateTime());
                 dbDir1.setLastModifiedTime(file.lastModified());
                 dbDir1.setFileCount(FileInfoHandler.getDirLength(file));
                 dirList.add(dbDir1);

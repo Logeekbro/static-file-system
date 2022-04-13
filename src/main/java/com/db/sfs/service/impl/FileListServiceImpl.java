@@ -2,6 +2,7 @@ package com.db.sfs.service.impl;
 
 import com.db.sfs.common.GlobalVars;
 import com.db.sfs.entity.DBDir;
+import com.db.sfs.filehandler.FileInfoHandler;
 import com.db.sfs.filehandler.FileListHandler;
 import com.db.sfs.service.FileListService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class FileListServiceImpl implements FileListService {
 
     @Override
     public DBDir getFileList(String path) throws Exception {
-        if(!fileListHandler.isDir(GlobalVars.BASE_DIR + path)){
+        if(!FileInfoHandler.isDir(GlobalVars.BASE_DIR + path)){
             System.out.println("error path:" + GlobalVars.BASE_DIR + path);
             throw new Exception("无效的路径");
         }

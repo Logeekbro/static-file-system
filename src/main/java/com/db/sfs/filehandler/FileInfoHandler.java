@@ -9,6 +9,9 @@ import java.util.Objects;
 
 public class FileInfoHandler {
 
+    public static boolean isDir(String path){
+        return new File(path).isDirectory();
+    }
 
     public static long getFileCreateTime(File file) throws IOException {
         return Files.readAttributes(Paths.get(file.getPath()), BasicFileAttributes.class).creationTime().toMillis();
