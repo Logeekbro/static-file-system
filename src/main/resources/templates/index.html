@@ -35,7 +35,7 @@
                     :auto-upload="false"
                     :multiple="true">
                 <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到当前目录</el-button>
                 <div slot="tip" class="el-upload__tip">单个文件大小不超过3MB</div>
             </el-upload>
         </div>
@@ -120,9 +120,15 @@
                                 v-clipboard:copy="scope.row.dirPath"
                                 @click="handleEdit(scope.$index, scope.row)">复制路径</el-button>
                         <el-button
+                                v-if="scope.row.type === 'file'"
                                 size="mini"
                                 type="danger"
-                                @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                                @click="DeleteFile(scope.$index, scope.row)">删除文件</el-button>
+                        <el-button
+                                v-if="scope.row.type === 'dir'"
+                                size="mini"
+                                type="danger"
+                                @click="DeleteDir(scope.$index, scope.row)">删除文件夹</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -133,154 +139,5 @@
 <script src="http://150.158.18.29/webstatic/index.js"></script>
 <script src="http://150.158.18.29/webstatic/common.js"></script>
 <script src="http://150.158.18.29/webstatic/v-clipboard.min.js"></script>
-<script>
-    var v = new Vue({
-        el: "#main",
-        data() {
-            return {
-                "fileList": [],
-                "tableData": [],
-                "search": "",
-                "currentDirPath": "",
-                "dirInfo": {},
-                "fileSep": "/",
-                "pathList": [],
-                "uploadData": {}
-            }
-        },
-        methods: {
-            getFileList(){
-                axios({
-                    method: "get",
-                    url : "/file/getFileList",
-                    params: {
-                        path:this.currentDirPath
-                    }
-                }).then(res => {
-                    var data = res.data;
-                    if(data.success){
-                        this.dirInfo.name = data.data.dirName;
-                        this.dirInfo.path = data.data.dirPath;
-                        this.uploadData = {
-                            "path": this.dirInfo.path + this.fileSep
-                        };
-                        this.dirInfo.fileCount = data.data.fileCount
-                        this.tableData = data.data.dirs.concat(data.data.files);
-                        this.getRoutePath();
-                    }
-                    else{
-                        this.$message({
-                            message: data.msg,
-                            type: 'error',
-                            duration: 2500
-                        });
-                    }
-
-                }).catch(error => {
-                    this.$message({
-                        message: '获取文件信息失败:' + error.message,
-                        type: 'error',
-                        duration: 2500
-                    });
-                });
-            },
-            clearFileList(){
-                this.fileList = [];
-            },
-            on_success(){
-                setTimeout(this.clearFileList, 1200);
-                this.getFileList();
-            },
-            on_error(err){
-                console.log(err)
-                this.$message({
-                    message: '上传失败！',
-                    type: 'error',
-                    duration: 1200
-                });
-            },
-            submitUpload() {
-                this.$refs.upload.submit();
-            },
-            handleRemove(file, fileList) {
-                console.log(file, fileList);
-            },
-            handlePreview(file) {
-                console.log(file);
-            },
-            handleSelectionChange(){
-
-            },
-            handleEdit(index, rowData){
-                this.$message({
-                    message: '复制成功！',
-                    type: 'success',
-                    duration: 1000
-                });
-            },
-            getFormatDate(stamp) {
-                var date = new Date(stamp);
-                var seperator1 = "-";
-                var seperator2 = ":";
-                var year = date.getFullYear();
-                var month = date.getMonth() + 1;
-                var strDate = date.getDate();
-                var hour = date.getHours();
-                var min = date.getMinutes();
-                var sec = date.getSeconds();
-                // if (month >= 1 && month <= 9) {
-                //     month = "0" + month;
-                // }
-                // if (strDate >= 0 && strDate <= 9) {
-                //     strDate = "0" + strDate;
-                // }
-                if(min >= 0 && min <= 9){
-                    min = "0" + min
-                }
-                if(sec >= 0 && sec <= 9){
-                    sec = "0" + sec
-                }
-                var currentdate = year + seperator1 + month + seperator1 + strDate + "  " +
-                    hour + seperator2 + min + seperator2 + sec;
-                return currentdate;
-            },
-            getRoutePath(){
-                var dirInfo = this.dirInfo;
-                var fullpath = dirInfo.path;
-                var paths = fullpath.split(this.fileSep);
-                var len = paths.length;
-                var addPath = "";
-                var pl = []
-                for(var i = 0;i < len;i++){
-                    if(i !== 0){
-                        addPath += this.fileSep + paths[i];
-                    }
-                    else{
-                        addPath += paths[i];
-                    }
-                    po = {
-                        "name": paths[i],
-                        "url": "/?path=" + encodeURIComponent(addPath)
-                    };
-                    pl.push(po);
-                }
-                this.pathList = pl;
-            },
-            getFileSep(){
-                axios({
-                    method: "get",
-                    url: "/env/getFileSep"
-                }).then(res => {
-                    this.fileSep = res.data;
-                });
-            }
-        },
-
-        mounted: function (){
-            this.currentDirPath = getQueryVariable("path")
-            this.getFileSep();
-            this.getFileList();
-        }
-    })
-</script>
+<script src="/main.js"></script>
 </html>

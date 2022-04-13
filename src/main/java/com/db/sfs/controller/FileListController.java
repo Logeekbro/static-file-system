@@ -6,16 +6,12 @@ import com.db.sfs.common.Result;
 import com.db.sfs.entity.DBDir;
 import com.db.sfs.service.FileListService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-@Controller
+@RestController
 @RequestMapping("/file")
 public class FileListController {
 
@@ -23,7 +19,6 @@ public class FileListController {
     FileListService fileListService;
 
     @GetMapping("/getFileList")
-    @ResponseBody
     public Result<DBDir> getFileList(@RequestParam(value = "path", defaultValue = "") String path) throws UnsupportedEncodingException {
         Result<DBDir> result = new Result<>();
         // 将前端经过URL编码的path解码
