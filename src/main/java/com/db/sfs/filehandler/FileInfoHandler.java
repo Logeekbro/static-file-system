@@ -15,6 +15,7 @@ public class FileInfoHandler {
     public static boolean isDirPath(String path){
         return new File(path).isDirectory();
     }
+
     public static boolean exists(String path){return new File(path).exists(); }
 
     // 判断路径是否为BASE_DIR下的文件或文件夹，防止使用 ../ 操作BASE_DIR之外的文件

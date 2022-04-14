@@ -71,7 +71,12 @@ public class HyperFile extends File {
     }
 
     public String getRealPath() throws IOException {
-        this.realPath = this.toPath().toRealPath() + GlobalVars.FILE_SEP;
+        if(this.isFile()){
+            this.realPath = this.toPath().toRealPath().toString();
+        }
+        else{
+            this.realPath = this.toPath().toRealPath() + GlobalVars.FILE_SEP;
+        }
         return realPath;
     }
 
