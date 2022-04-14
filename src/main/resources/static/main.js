@@ -56,7 +56,7 @@ var v = new Vue({
         },
         on_success(rep, file){
             console.log(rep);
-            setTimeout(this.clearFileList, 1000);
+            this.clearFileList();
             if(rep.success){
                 this.getFileList();
                 this.$message({
@@ -188,7 +188,8 @@ var v = new Vue({
                             type: 'success',
                             duration: 1000
                         });
-                        this.getFileList(path);
+                        this.currentDirPath = path;
+                        this.getFileList();
                     }
                     else{
                         this.$message({
