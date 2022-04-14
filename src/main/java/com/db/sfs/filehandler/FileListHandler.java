@@ -35,13 +35,7 @@ public class FileListHandler {
                 DBFile dbFile = new DBFile();
                 dbFile.setFileName(file.getName());
                 // 拼接url
-                String url = null;
-                if(dbDir.getDirPath().equals("")){
-                    url = GlobalVars.FILE_HOST + file.getRealPath() + file.getName();
-                }
-                else {
-                    url = GlobalVars.FILE_HOST + file.getRealPath() + GlobalVars.FILE_SEP + file.getName();
-                }
+                String url = GlobalVars.FILE_HOST + file.getRealPath();
                 dbFile.setUrl(url);
                 dbFile.setSize(file.getSize());
                 dbFile.setCreateTime(file.getCreateTime());

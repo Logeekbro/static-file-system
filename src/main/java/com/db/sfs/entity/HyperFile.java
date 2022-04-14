@@ -1,5 +1,7 @@
 package com.db.sfs.entity;
 
+import com.db.sfs.common.GlobalVars;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -69,7 +71,7 @@ public class HyperFile extends File {
     }
 
     public String getRealPath() throws IOException {
-        this.realPath = this.toPath().toRealPath().toString();
+        this.realPath = this.toPath().toRealPath() + GlobalVars.FILE_SEP;
         return realPath;
     }
 
