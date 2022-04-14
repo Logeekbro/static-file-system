@@ -19,7 +19,7 @@ public class DeleteController {
     @PostMapping("/deleteFile")
     public Result<String> deleteFile(String path) throws UnsupportedEncodingException {
 //        path = URLDecoder.decode(path, "utf-8");
-        System.out.println("filePath:" + path);
+        System.out.println("deleteFileUrl:" + path);
 
         Result<String> result = new Result<>();
         try{
@@ -35,7 +35,7 @@ public class DeleteController {
     @PostMapping("/deleteDir")
     public Result<String> deleteDir(String path) throws UnsupportedEncodingException {
 //        path = URLDecoder.decode(path, "utf-8");
-        System.out.println("dirPath:" + path);
+        System.out.println("deleteDirPath:" + path);
         Result<String> result = new Result<>();
         try{
             fileDeleteService.deleteDir(path);

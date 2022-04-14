@@ -21,7 +21,7 @@ public class FileListHandler {
     public DBDir getFileList(String path) throws IOException {
         DBDir dbDir = new DBDir();
         HyperFile dir = new HyperFile(path);
-        dbDir.setDirPath(path.replace(GlobalVars.BASE_DIR, ""));
+        dbDir.setDirPath(dir.getRealPath().replace(GlobalVars.BASE_DIR, ""));
         dbDir.setDirName(dir.getName());
         dbDir.setCreateTime(dir.getCreateTime());
         dbDir.setLastModifiedTime(dir.lastModified());
@@ -37,10 +37,10 @@ public class FileListHandler {
                 // 拼接url
                 String url = null;
                 if(dbDir.getDirPath().equals("")){
-                    url = GlobalVars.FILE_HOST + path + file.getName();
+                    url = GlobalVars.FILE_HOST + file.getRealPath() + file.getName();
                 }
                 else {
-                    url = GlobalVars.FILE_HOST + path + GlobalVars.FILE_SEP + file.getName();
+                    url = GlobalVars.FILE_HOST + file.getRealPath() + GlobalVars.FILE_SEP + file.getName();
                 }
                 dbFile.setUrl(url);
                 dbFile.setSize(file.getSize());
@@ -51,7 +51,7 @@ public class FileListHandler {
             // 对子目录进行操作
             else {
                 DBDir dbDir1 = new DBDir();
-                dbDir1.setDirPath(file.getPath().replace(GlobalVars.BASE_DIR, ""));
+                dbDir1.setDirPath(file.getRealPath().replace(GlobalVars.BASE_DIR, ""));
                 dbDir1.setDirName(file.getName());
                 dbDir1.setCreateTime(file.getCreateTime());
                 dbDir1.setLastModifiedTime(file.lastModified());

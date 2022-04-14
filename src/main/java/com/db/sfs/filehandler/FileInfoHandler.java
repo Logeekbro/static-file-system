@@ -18,8 +18,8 @@ public class FileInfoHandler {
 
     // 判断路径是否为BASE_DIR下的文件或文件夹，防止使用 ../ 操作BASE_DIR之外的文件
     public static boolean inBaseDir(String path) throws IOException {
-        HyperFile fd = new HyperFile(path);
-        if(!fd.exists() || !fd.toPath().toRealPath().toString().startsWith(GlobalVars.BASE_DIR)){
+        HyperFile fod = new HyperFile(path);
+        if(!fod.exists() || !fod.getRealPath().startsWith(GlobalVars.BASE_DIR)){
             return false;
         }
         return true;
