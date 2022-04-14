@@ -15,11 +15,12 @@ public class FileInfoHandler {
     public static boolean isDirPath(String path){
         return new File(path).isDirectory();
     }
+    public static boolean exists(String path){return new File(path).exists(); }
 
     // 判断路径是否为BASE_DIR下的文件或文件夹，防止使用 ../ 操作BASE_DIR之外的文件
     public static boolean inBaseDir(String path) throws IOException {
         HyperFile fod = new HyperFile(path);
-        return fod.exists() && fod.getRealPath().startsWith(GlobalVars.BASE_DIR);
+        return fod.exists() || fod.getRealPath().startsWith(GlobalVars.BASE_DIR);
     }
 
     public static long getFileCreateTime(File file) throws IOException {

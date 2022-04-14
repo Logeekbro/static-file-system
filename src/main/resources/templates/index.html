@@ -40,14 +40,28 @@
             </el-upload>
         </div>
 
-        <!--路径导航-->
         <el-divider></el-divider>
+
+        <!--工具栏-->
+        <div id="ops">
+            <div id="left-ops" style="float: left">
+
+            </div>
+            <div id="right-ops" style="float: right">
+                <el-button @click="createDir" size="small" style="float: right" type="warning" icon="el-icon-folder-add">
+                    新建文件夹
+                </el-button>
+            </div>
+
+        </div>
+
+        <!--路径导航-->
+
         <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px">
             <el-breadcrumb-item :to="{ path: '/' }"><a href="/">~</a></el-breadcrumb-item>
             <el-breadcrumb-item :to="{ path: '/' }" v-for="path in pathList">
                 <a :href="path.url" v-text="path.name"></a>
             </el-breadcrumb-item>
-
         </el-breadcrumb>
 
         <!--文件信息列表-->

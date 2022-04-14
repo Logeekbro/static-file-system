@@ -18,11 +18,12 @@ public class UploadController {
     public Result<String> upload(MultipartFile file, @RequestParam(name = "path", defaultValue = "") String path){
         System.out.println("upload path:" + path);
         Result<String> result = new Result<>();
-        if(fileUploadService.uploadMultipartFiles(file, path)){
+        try{
+            fileUploadService.uploadMultipartFiles(file, path);
             result.ok();
         }
-        else {
-            BaseErrorHandler.doError(result);
+        catch (Exception e){
+            BaseErrorHandler.doError(result, e.getMessage());
         }
         return result;
     }

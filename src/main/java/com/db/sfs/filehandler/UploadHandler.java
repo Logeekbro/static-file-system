@@ -10,23 +10,16 @@ import java.nio.file.Files;
 @Component
 public class UploadHandler {
 
-    public boolean uploadMultipartFiles(MultipartFile file, String path) {
+    public void uploadMultipartFiles(MultipartFile file, String path) throws Exception {
         String fileName;
         String filePath;
-        try{
             fileName = file.getOriginalFilename();
             filePath = GlobalVars.BASE_DIR + path + fileName ;
-            File distFile = new File(filePath);
-            if(distFile.exists()){
+            File destFile = new File(filePath);
+            if(destFile.exists()){
                 throw new Exception("文件已存在");
             }
-            Files.copy(file.getInputStream(), distFile.toPath());
-            return true;
-        }
-        catch (Exception e){
-            e.printStackTrace();
-            return false;
-        }
+            Files.copy(file.getInputStream(), destFile.toPath());
     }
     public boolean uploadMultipartFiles(MultipartFile[] files) {
         String fileName;

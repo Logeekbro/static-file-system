@@ -13,12 +13,15 @@ var v = new Vue({
         }
     },
     methods: {
-        getFileList(){
+        getFileList(path=null){
+            if(path == null){
+                path = this.currentDirPath;
+            }
             axios({
                 method: "get",
                 url : "/file/getFileList",
                 params: {
-                    path:this.currentDirPath
+                    path: path
                 }
             }).then(res => {
                 var data = res.data;
@@ -51,14 +54,31 @@ var v = new Vue({
         clearFileList(){
             this.fileList = [];
         },
-        on_success(){
-            setTimeout(this.clearFileList, 1200);
-            this.getFileList();
+        on_success(rep, file){
+            console.log(rep);
+            setTimeout(this.clearFileList, 1000);
+            if(rep.success){
+                this.getFileList();
+                this.$message({
+                    message: '上传成功！',
+                    type: 'success',
+                    duration: 1200
+                });
+            }
+            else{
+                this.$message({
+                    message: rep.msg + "->" + file.name,
+                    type: 'error',
+                    duration: 1200
+                });
+            }
+
         },
-        on_error(err){
+        on_error(err,file){
             console.log(err)
+            setTimeout(this.clearFileList, 1000);
             this.$message({
-                message: '上传失败！',
+                message: file.name + '上传失败！',
                 type: 'error',
                 duration: 1200
             });
@@ -87,7 +107,7 @@ var v = new Vue({
             params.append("path", rowData.url)
             axios({
                 method: "post",
-                url: "/file/deleteFile",
+                url: "/file/delete",
                 data: params
             }).then(res => {
                 var data = res.data;
@@ -119,7 +139,7 @@ var v = new Vue({
             params.append("path", rowData.dirPath);
             axios({
                 method: "post",
-                url: "/file/deleteDir",
+                url: "/file/dir/delete",
                 data: params
             }).then(res => {
                 var data = res.data;
@@ -145,6 +165,49 @@ var v = new Vue({
                     duration: 2500
                 });
             });
+        },
+        createDir(){
+            this.$prompt('请输入文件夹名称(可以创建多级目录)', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                inputPattern: /[^\\]+/,
+                inputErrorMessage: '路径格式不正确'
+            }).then(({ value }) => {
+                var params = new URLSearchParams();
+                var path = this.dirInfo.path + value;
+                params.append("path", path);
+                axios({
+                    method: "post",
+                    url: "/file/dir/create",
+                    data: params
+                }).then(res => {
+                    var data = res.data;
+                    if(data.success){
+                        this.$message({
+                            message: '创建成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.getFileList(path);
+                    }
+                    else{
+                        this.$message({
+                            message: '创建失败: ' + data.msg,
+                            type: 'error',
+                            duration: 1000
+                        });
+                    }
+                }).catch(error => {
+                    this.$message({
+                        message: '服务器错误: ' + error.message,
+                        type: 'error',
+                        duration: 2500
+                    });
+                });
+            }).catch(() => {
+
+            });
+
         },
         getFormatDate(stamp) {
             var date = new Date(stamp);

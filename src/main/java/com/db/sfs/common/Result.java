@@ -1,5 +1,6 @@
 package com.db.sfs.common;
 
+
 public class Result<T> {
     // 状态码
     private int status;

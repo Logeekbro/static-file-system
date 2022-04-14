@@ -5,11 +5,13 @@ import com.db.sfs.entity.DBDir;
 import com.db.sfs.entity.DBFile;
 import com.db.sfs.entity.HyperFile;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,9 +28,8 @@ public class FileListHandler {
         dbDir.setCreateTime(dir.getCreateTime());
         dbDir.setLastModifiedTime(dir.lastModified());
         dbDir.setFileCount(FileInfoHandler.getDirLength(dir));
-        // 指定List初始大小，防止多次扩容影响性能
-        List<DBFile> fileList = new ArrayList<>(100);
-        List<DBDir> dirList = new ArrayList<>(20);
+        List<DBFile> fileList = new LinkedList<>();
+        List<DBDir> dirList = new LinkedList<>();
         for(HyperFile file : Objects.requireNonNull(dir.listFiles())){
             // 对文件进行操作
             if(file.isFile()){
@@ -58,11 +59,65 @@ public class FileListHandler {
         return dbDir;
     }
 
-    public static void main(String[] args) throws IOException {
-        long start = System.currentTimeMillis();
-        FileListHandler fileListHandler = new FileListHandler();
+    public DBDir getLargeFileList(String path) throws Exception {
+        DBDir dbDir = new DBDir();
+        Path dir = Paths.get(path);
+        dbDir.setDirPath(dir.toRealPath().toString().replace(GlobalVars.BASE_DIR, ""));
+        dbDir.setDirName(dir.getFileName().toString());
+        dbDir.setCreateTime(Files.readAttributes(dir, BasicFileAttributes.class).creationTime().toMillis());
+        dbDir.setLastModifiedTime(Files.getLastModifiedTime(dir).toMillis());
+        dbDir.setFileCount((int) Files.list(dir).count());
+        // 指定List初始大小，防止多次扩容影响性能
+        List<DBFile> fileList = new LinkedList<>();
+        List<DBDir> dirList = new LinkedList<>();
+        Files.list(dir).forEach(
+                fod -> {
+                    // 对文件进行操作
+                    if(!Files.isDirectory(fod)){
+                        DBFile dbFile = new DBFile();
+                        try{
+                            dbFile.setFileName(fod.getFileName().toString());
+                            // 拼接url
+                            String url = GlobalVars.FILE_HOST + fod.toRealPath();
+                            dbFile.setUrl(url);
+                            dbFile.setSize(Files.size(fod));
+                            dbFile.setCreateTime(Files.readAttributes(fod, BasicFileAttributes.class).creationTime().toMillis());
+                            dbFile.setLastModifiedTime(Files.getLastModifiedTime(fod).toMillis());
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+                        fileList.add(dbFile);
+                    }
+                    // 对子目录进行操作
+                    else {
+                        DBDir dbDir1 = new DBDir();
+                        try{
+                            dbDir1.setDirPath(fod.toRealPath().toString().replace(GlobalVars.BASE_DIR, ""));
+                            dbDir1.setDirName(fod.getFileName().toString());
+                            dbDir1.setCreateTime(Files.readAttributes(fod, BasicFileAttributes.class).creationTime().toMillis());
+                            dbDir1.setLastModifiedTime(Files.getLastModifiedTime(fod).toMillis());
+                            dbDir1.setFileCount((int) Files.list(fod).count());
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
 
+                        dirList.add(dbDir1);
+                    }
+                }
+        );
+        dbDir.setFiles(fileList);
+        dbDir.setDirs(dirList);
+        return dbDir;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        FileListHandler fileListHandler = new FileListHandler();
+        long start = System.currentTimeMillis();
         System.out.println(fileListHandler.getFileList(GlobalVars.BASE_DIR + ""));
+//        System.out.println(fileListHandler.getLargeFileList(GlobalVars.BASE_DIR + ""));
         System.out.println("耗时：" + (System.currentTimeMillis() - start) + "ms");
     }
 }
