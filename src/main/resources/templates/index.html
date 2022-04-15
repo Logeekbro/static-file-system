@@ -95,7 +95,7 @@
         </div>
 
         <!--路径导航-->
-        <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px">
+        <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px;font-size: 20px;margin-bottom: 10px;">
             <el-breadcrumb-item :to="{ path: '/' }"><a href="/">~</a></el-breadcrumb-item>
             <el-breadcrumb-item :to="{ path: '/' }" v-for="path in pathList">
                 <a :href="path.url" v-text="path.name"></a>
