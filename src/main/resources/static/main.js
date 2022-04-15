@@ -2,6 +2,7 @@ var v = new Vue({
     el: "#main",
     data() {
         return {
+            "openUpload": false,
             "fileList": [],
             "tableData": [],
             "search": "",
@@ -9,7 +10,13 @@ var v = new Vue({
             "dirInfo": {},
             "fileSep": "/",
             "pathList": [],
-            "uploadData": {}
+            "uploadData": {},
+            "runningResult": true,
+            "selectedRows": [],
+            "showCreateDirDialog": false,
+            "newDirInputValue": "",
+            "jumpToNewDir": false
+
         }
     },
     methods: {
@@ -55,10 +62,8 @@ var v = new Vue({
             this.fileList = [];
         },
         on_success(rep, file){
-            console.log(rep);
             this.clearFileList();
             if(rep.success){
-                this.getFileList();
                 this.$message({
                     message: '上传成功！',
                     type: 'success',
@@ -92,7 +97,8 @@ var v = new Vue({
         handlePreview(file) {
             console.log(file);
         },
-        handleSelectionChange(){
+        handleSelectionChange(selection){
+            this.selectedRows = selection;
 
         },
         handleEdit(index, rowData){
@@ -102,7 +108,21 @@ var v = new Vue({
                 duration: 1000
             });
         },
-        DeleteFile(index, rowData){
+        on_upload_close(done){
+            if(this.fileList.length === 0){
+                done();
+                this.getFileList();
+            }
+            else{
+                this.$confirm('还有文件上传未完成，现在关闭可能会导致无法预料的错误，确认关闭？')
+                    .then(_ => {
+                        done();
+                        this.getFileList();
+                    })
+                    .catch(_ => {});
+            }
+        },
+        DeleteFile(index, rowData, showTip=true){
             var params = new URLSearchParams();
             params.append("path", rowData.url)
             axios({
@@ -112,19 +132,27 @@ var v = new Vue({
             }).then(res => {
                 var data = res.data;
                 if(data.success){
-                    this.$message({
-                        message: '删除成功！',
-                        type: 'success',
-                        duration: 1000
-                    });
-                    this.getFileList();
+                    if(showTip){
+                        this.$message({
+                            message: '删除成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.getFileList();
+                    }
+                    this.runningResult = true;
+
+
                 }
                 else{
-                    this.$message({
-                        message: '删除失败: ' + data.msg,
-                        type: 'error',
-                        duration: 1000
-                    });
+                    if(showTip){
+                        this.$message({
+                            message: '删除失败: ' + data.msg,
+                            type: 'error',
+                            duration: 1000
+                        });
+                    }
+                    this.runningResult = false;
                 }
             }).catch(error => {
                 this.$message({
@@ -132,9 +160,10 @@ var v = new Vue({
                     type: 'error',
                     duration: 2500
                 });
+                this.runningResult = false;
             });
         },
-        DeleteDir(index, rowData){
+        DeleteDir(index, rowData, showTip=true){
             var params = new URLSearchParams();
             params.append("path", rowData.dirPath);
             axios({
@@ -144,19 +173,24 @@ var v = new Vue({
             }).then(res => {
                 var data = res.data;
                 if(data.success){
-                    this.$message({
-                        message: '删除成功！',
-                        type: 'success',
-                        duration: 1000
-                    });
-                    this.getFileList();
+                    if(showTip){
+                        this.$message({
+                            message: '删除成功！',
+                            type: 'success',
+                            duration: 1000
+                        });
+                        this.getFileList();
+                    }
+
                 }
                 else{
-                    this.$message({
-                        message: '删除失败: ' + data.msg,
-                        type: 'error',
-                        duration: 1000
-                    });
+                    if(showTip){
+                        this.$message({
+                            message: '删除失败: ' + data.msg,
+                            type: 'error',
+                            duration: 1000
+                        });
+                    }
                 }
             }).catch(error => {
                 this.$message({
@@ -167,20 +201,14 @@ var v = new Vue({
             });
         },
         createDir(){
-            this.$prompt('请输入文件夹名称(可以创建多级目录)', '提示', {
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                inputPattern: /[^\\]+/,
-                inputErrorMessage: '路径格式不正确'
-            }).then(({ value }) => {
-                var params = new URLSearchParams();
-                var path = this.dirInfo.path + value;
-                params.append("path", path);
-                axios({
-                    method: "post",
-                    url: "/file/dir/create",
-                    data: params
-                }).then(res => {
+            var params = new URLSearchParams();
+            var path = this.dirInfo.path + this.newDirInputValue;
+            params.append("path", path);
+            axios({
+                method: "post",
+                url: "/file/dir/create",
+                data: params
+            }).then(res => {
                     var data = res.data;
                     if(data.success){
                         this.$message({
@@ -188,7 +216,9 @@ var v = new Vue({
                             type: 'success',
                             duration: 1000
                         });
-                        this.currentDirPath = path;
+                        if(this.jumpToNewDir){
+                            this.currentDirPath = path;
+                        }
                         this.getFileList();
                     }
                     else{
@@ -198,16 +228,23 @@ var v = new Vue({
                             duration: 1000
                         });
                     }
-                }).catch(error => {
-                    this.$message({
-                        message: '服务器错误: ' + error.message,
-                        type: 'error',
-                        duration: 2500
-                    });
-                });
-            }).catch(() => {
-
             });
+            this.showCreateDirDialog = false;
+        },
+        multiDelete(){
+            var selected = this.selectedRows;
+            var len = selected.length;
+            var failNum = 0;
+            for(var i = 0; i < len;i++){
+                if(selected[i].type === "file"){
+                    this.DeleteFile(i, selected[i]);
+                    failNum += !this.runningResult ? 1 : 0;
+                }
+                else if(selected[i].type === "dir"){
+                    this.DeleteDir(i, selected[i])
+                    failNum += !this.runningResult ? 1 : 0;
+                }
+            }
 
         },
         getFormatDate(stamp) {

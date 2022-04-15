@@ -11,7 +11,8 @@
             /*border: 1px solid black;*/
         }
         #upload{
-            width: 25%;
+            margin-left: 10px;
+            width: 70%;
         }
     </style>
     <link href="http://150.158.18.29/webstatic/index.css" rel="stylesheet">
@@ -20,43 +21,80 @@
 
 <body>
     <main id="main">
-        <!--文件上传-->
-        <div id="upload">
-            <el-upload
-                    class="upload-demo"
-                    ref="upload"
-                    action="/file/upload"
-                    :data="uploadData"
-                    :on-success="on_success"
-                    :on-error="on_error"
-                    :on-preview="handlePreview"
-                    :on-remove="handleRemove"
-                    :file-list="fileList"
-                    :auto-upload="false"
-                    :multiple="true">
-                <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-                <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到当前目录</el-button>
-                <div slot="tip" class="el-upload__tip">单个文件大小不超过3MB</div>
-            </el-upload>
+
+        <!--一些通过按钮控制显示和隐藏的组件-->
+
+        <!--文件上传侧边栏-->
+        <el-drawer
+                title="文件上传"
+                :visible.sync="openUpload"
+                direction="rtl"
+                :before-close="on_upload_close">
+            <div id="upload">
+                <el-upload
+                        class="upload-demo"
+                        ref="upload"
+                        action="/file/upload"
+                        :data="uploadData"
+                        :on-success="on_success"
+                        :on-error="on_error"
+                        :on-preview="handlePreview"
+                        :on-remove="handleRemove"
+                        :file-list="fileList"
+                        :auto-upload="false"
+                        :multiple="true">
+                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+
+                    <div slot="tip" class="el-upload__tip">单个文件大小不超过3MB</div>
+                </el-upload>
+                <el-button style="margin-top: 10px;" size="small" type="success" @click="submitUpload">上传到当前目录</el-button>
+            </div>
+        </el-drawer>
+
+        <!--新建文件夹对话框-->
+        <el-dialog
+                title="新建文件夹"
+                :show-close="false"
+                :visible.sync="showCreateDirDialog"
+                width="30%">
+            <div class="bucket" style="margin-bottom: 5px;">
+                <span>创建后跳转到新文件夹：</span>
+                <el-switch
+                        v-model="jumpToNewDir"
+                        active-color="#13ce66"
+                        inactive-color="#ff4949">
+                </el-switch>
+            </div>
+
+            <el-input
+                    placeholder="输入文件夹名称（可创建多级目录）"
+                    v-model="newDirInputValue"
+                    clearable>
+            </el-input>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="showCreateDirDialog = false">取 消</el-button>
+                <el-button type="primary" @click="createDir">确 定</el-button>
+          </span>
+        </el-dialog>
+
+        <div id="up-c">
+
         </div>
 
         <el-divider></el-divider>
 
         <!--工具栏-->
         <div id="ops">
-            <div id="left-ops" style="float: left">
+            <div id="left-ops">
 
             </div>
             <div id="right-ops" style="float: right">
-                <el-button @click="createDir" size="small" style="float: right" type="warning" icon="el-icon-folder-add">
-                    新建文件夹
-                </el-button>
+
             </div>
 
         </div>
 
         <!--路径导航-->
-
         <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px">
             <el-breadcrumb-item :to="{ path: '/' }"><a href="/">~</a></el-breadcrumb-item>
             <el-breadcrumb-item :to="{ path: '/' }" v-for="path in pathList">
@@ -64,16 +102,41 @@
             </el-breadcrumb-item>
         </el-breadcrumb>
 
+        <!--批量操作-->
+        <div class="multiOps" style="margin-top: 5px;">
+            <!--左侧工具栏-->
+            <div id="leftOps" style="float: left">
+                <!--文件上传-->
+                <el-button @click="openUpload = true" slot="trigger" size="small" type="primary">
+                    上传文件
+                </el-button>
+
+                <el-button style="margin-left: 10px;" @click="multiDelete" size="small" type="danger" plain>
+                    删除选中
+                </el-button>
+            </div>
+
+            <!--右侧工具栏-->
+            <div id="rightOps" style="float: right">
+                <el-button @click="showCreateDirDialog = true" size="small" style="float: right" type="warning" icon="el-icon-folder-add">
+                    新建文件夹
+                </el-button>
+            </div>
+
+
+        </div>
+
         <!--文件信息列表-->
         <div id="fileTable">
             <el-table
                     ref="multipleTable"
                     :data="tableData.filter(data => !search || data.fileName.toLowerCase().includes(search.toLowerCase()))"
+                    row-key="rowKey"
                     tooltip-effect="dark"
                     show-overflow-tooltip="true"
                     style="width: 100%"
                     @selection-change="handleSelectionChange">
-
+                <!--勾选框-->
                 <el-table-column
                         type="selection"
                         width="55">

@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
-// 自定义文件类，为父类增加了createTime、size、realPath属性
+// 自定义文件类，增加了createTime、size、realPath属性
 public class HyperFile extends File {
 
     private long createTime;
