@@ -335,6 +335,7 @@ var v = new Vue({
             });
         },
         copyToList(){
+            this.copiedRows = [];
             var list = this.selectedRows;
             for(var i = 0;i < list.length;i++){
                 if(list[i].type === "file"){
@@ -353,6 +354,7 @@ var v = new Vue({
             });
         },
         cutToList(){
+            this.copiedRows = [];
             var list = this.selectedRows;
             for(var i = 0;i < list.length;i++){
                 if(list[i].type === "file"){
