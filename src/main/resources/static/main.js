@@ -31,6 +31,7 @@ var v = new Vue({
             else{
                 this.currentDirPath = path;
             }
+            this.setCurrentDir();
             axios({
                 method: "get",
                 url : "/file/getFileList",
@@ -59,7 +60,7 @@ var v = new Vue({
                 }
 
             }).catch(error => {
-                this.emptyText = "暂无数据";
+                this.emptyText = "加载失败!";
                 this.$message({
                     message: '获取文件信息失败:' + error.message,
                     type: 'error',
@@ -67,6 +68,24 @@ var v = new Vue({
                 });
             });
 
+        },
+        getCurrentDir(){
+            return axios({
+                method: "get",
+                url: "/client/currentDir",
+            }).then(res => {
+                this.currentDirPath = res.data.data;
+                this.getFileList();
+            });
+        },
+        setCurrentDir(){
+            var params = new URLSearchParams();
+            params.append("currentDir", this.currentDirPath)
+            axios({
+                method: "put",
+                url: "/client/currentDir",
+                data: params
+            });
         },
         clearFileList(){
             this.fileList = [];
@@ -393,7 +412,8 @@ var v = new Vue({
     },
 
     mounted: function (){
+        this.getCurrentDir();
         this.getFileSep();
-        this.getFileList("/");
+
     }
 })
