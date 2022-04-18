@@ -3,9 +3,9 @@ package com.db.sfs.filehandler;
 import com.db.sfs.common.GlobalVars;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Component
 public class UploadHandler {
@@ -15,11 +15,11 @@ public class UploadHandler {
         String filePath;
             fileName = file.getOriginalFilename();
             filePath = GlobalVars.BASE_DIR + path + fileName ;
-            File destFile = new File(filePath);
-            if(destFile.exists()){
+            Path destFile = Paths.get(filePath);
+            if(Files.exists(destFile)){
                 throw new Exception("文件已存在");
             }
-            Files.copy(file.getInputStream(), destFile.toPath());
+            Files.copy(file.getInputStream(), destFile);
     }
     public boolean uploadMultipartFiles(MultipartFile[] files) {
         String fileName;
@@ -28,8 +28,11 @@ public class UploadHandler {
             for(MultipartFile file : files){
                 fileName = file.getOriginalFilename();
                 filePath = GlobalVars.BASE_DIR + fileName;
-                File distFile = new File(filePath);
-                Files.copy(file.getInputStream(), distFile.toPath());
+                Path destFile = Paths.get(filePath);
+                if(Files.exists(destFile)){
+                    throw new Exception("文件已存在");
+                }
+                Files.copy(file.getInputStream(), destFile);
             }
             return true;
         }

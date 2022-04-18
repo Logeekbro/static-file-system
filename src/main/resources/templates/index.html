@@ -35,6 +35,7 @@
                         class="upload-demo"
                         ref="upload"
                         action="/file/upload"
+                        drag
                         :data="uploadData"
                         :on-success="on_success"
                         :on-error="on_error"
@@ -43,11 +44,12 @@
                         :file-list="fileList"
                         :auto-upload="false"
                         :multiple="true">
-                    <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+                    <i class="el-icon-upload"></i>
+                    <div class="el-upload__text">将文件拖到此处，或<em>点击选择文件</em></div>
 
                     <div slot="tip" class="el-upload__tip">单个文件大小不超过3MB</div>
                 </el-upload>
-                <el-button style="margin-top: 10px;" size="small" type="success" @click="submitUpload">上传到当前目录</el-button>
+                <el-button style="margin-top: 10px;" size="small" type="success" @click="submitUpload">点击上传</el-button>
             </div>
         </el-drawer>
 
@@ -77,17 +79,16 @@
           </span>
         </el-dialog>
 
-        <div id="up-c">
-
-        </div>
 
         <el-divider></el-divider>
 
         <!--工具栏-->
         <div id="ops">
+
             <div id="left-ops">
 
             </div>
+
             <div id="right-ops" style="float: right">
 
             </div>
@@ -96,9 +97,11 @@
 
         <!--路径导航-->
         <el-breadcrumb separator="/" style="line-height: 20px;margin-left: 5px;font-size: 20px;margin-bottom: 10px;">
-            <el-breadcrumb-item :to="{ path: '/' }"><a href="/">~</a></el-breadcrumb-item>
+            <el-breadcrumb-item :to="{ path: '/' }">
+                <span  @click="getFileList('/')" class="root">~</span>
+            </el-breadcrumb-item>
             <el-breadcrumb-item :to="{ path: '/' }" v-for="path in pathList">
-                <a :href="path.url" v-text="path.name"></a>
+                <span @click="getFileList(path.path)" v-text="path.name"></span>
             </el-breadcrumb-item>
         </el-breadcrumb>
 
@@ -106,32 +109,62 @@
         <div class="multiOps" style="margin-top: 5px;">
             <!--左侧工具栏-->
             <div id="leftOps" style="float: left">
-                <!--文件上传-->
-                <el-button @click="openUpload = true" slot="trigger" size="small" type="primary">
-                    上传文件
+                <el-tooltip class="item" effect="dark" content="批量删除" placement="top">
+                    <el-button
+                            icon="el-icon-delete"
+                            @click="multiDelete"
+                            :disabled="selectedRows.length === 0 ? true : false"
+                            size="small" type="danger"
+
+                            plain>
+
+                    </el-button>
+                </el-tooltip>
+
+
+                <el-button @click="copyToList"
+                           size="small"
+                           type="primary"
+                           :disabled="selectedRows.length === 0 ? true : false"
+                           plain>
+                    复制
                 </el-button>
 
-                <el-button style="margin-left: 10px;" @click="multiDelete" size="small" type="danger" plain>
-                    删除选中
+
+
+                <el-button size="small"
+                           type="primary"
+                           :disabled="copiedRows.length === 0 ? true : false"
+                           @click="pasteData"
+                           plain>
+                    粘贴
                 </el-button>
+
+
             </div>
 
             <!--右侧工具栏-->
             <div id="rightOps" style="float: right">
-                <el-button @click="showCreateDirDialog = true" size="small" style="float: right" type="warning" icon="el-icon-folder-add">
+
+                <!--文件上传-->
+                <el-button style="margin-right: 10px" icon="el-icon-upload" @click="openUpload = true" slot="trigger" size="small" type="primary">
+                    上传
+                </el-button>
+
+                <!--新建文件夹-->
+                <el-button @click="showCreateDirDialog = true" size="small" type="warning" icon="el-icon-folder-add">
                     新建文件夹
                 </el-button>
             </div>
-
-
         </div>
 
         <!--文件信息列表-->
         <div id="fileTable">
             <el-table
                     ref="multipleTable"
-                    :data="tableData.filter(data => !search || data.fileName.toLowerCase().includes(search.toLowerCase()))"
-                    row-key="rowKey"
+                    :empty-text="emptyText"
+                    :data="tableData"
+                    row-key="id"
                     tooltip-effect="dark"
                     show-overflow-tooltip="true"
                     style="width: 100%"
@@ -152,7 +185,7 @@
                             </el-link>
                         </span>
                         <span v-else-if="scope.row.type == 'dir'">
-                            <el-link :href="'/?path=' + encodeURIComponent(scope.row.dirPath)" icon="el-icon-folder" type="warning">
+                            <el-link @click="getFileList(scope.row.dirPath)" icon="el-icon-folder" type="warning">
                                 {{scope.row.dirName}}
                             </el-link>
                         </span>
@@ -176,8 +209,7 @@
                     </template>
                 </el-table-column>
 
-                <el-table-column
-                        align="right">
+                <el-table-column align="right">
                     <template slot="header" slot-scope="scope">
 <!--                        <el-input-->
 <!--                                v-model="search"-->
@@ -200,12 +232,14 @@
                                 v-if="scope.row.type === 'file'"
                                 size="mini"
                                 type="danger"
-                                @click="DeleteFile(scope.$index, scope.row)">删除文件</el-button>
+                                icon="el-icon-delete"
+                                @click="DeleteFile(scope.$index, scope.row)"></el-button>
                         <el-button
                                 v-if="scope.row.type === 'dir'"
                                 size="mini"
                                 type="danger"
-                                @click="DeleteDir(scope.$index, scope.row)">删除文件夹</el-button>
+                                icon="el-icon-delete"
+                                @click="DeleteDir(scope.$index, scope.row)"></el-button>
                     </template>
                 </el-table-column>
             </el-table>

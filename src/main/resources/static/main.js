@@ -11,18 +11,24 @@ var v = new Vue({
             "fileSep": "/",
             "pathList": [],
             "uploadData": {},
-            "runningResult": true,
             "selectedRows": [],
             "showCreateDirDialog": false,
             "newDirInputValue": "",
-            "jumpToNewDir": false
+            "jumpToNewDir": false,
+            "copiedRows": [],
+            "emptyText": ""
 
         }
     },
     methods: {
         getFileList(path=null){
+            this.tableData = [];
+            this.emptyText = "加载中...";
             if(path == null){
                 path = this.currentDirPath;
+            }
+            else{
+                this.currentDirPath = path;
             }
             axios({
                 method: "get",
@@ -31,6 +37,7 @@ var v = new Vue({
                     path: path
                 }
             }).then(res => {
+                this.emptyText = "暂无数据";
                 var data = res.data;
                 if(data.success){
                     this.dirInfo.name = data.data.dirName;
@@ -51,12 +58,14 @@ var v = new Vue({
                 }
 
             }).catch(error => {
+                this.emptyText = "暂无数据";
                 this.$message({
                     message: '获取文件信息失败:' + error.message,
                     type: 'error',
                     duration: 2500
                 });
             });
+
         },
         clearFileList(){
             this.fileList = [];
@@ -74,7 +83,7 @@ var v = new Vue({
                 this.$message({
                     message: rep.msg + "->" + file.name,
                     type: 'error',
-                    duration: 1200
+                    duration: 2500
                 });
             }
 
@@ -140,9 +149,6 @@ var v = new Vue({
                         });
                         this.getFileList();
                     }
-                    this.runningResult = true;
-
-
                 }
                 else{
                     if(showTip){
@@ -152,7 +158,6 @@ var v = new Vue({
                             duration: 1000
                         });
                     }
-                    this.runningResult = false;
                 }
             }).catch(error => {
                 this.$message({
@@ -160,7 +165,6 @@ var v = new Vue({
                     type: 'error',
                     duration: 2500
                 });
-                this.runningResult = false;
             });
         },
         DeleteDir(index, rowData, showTip=true){
@@ -206,7 +210,7 @@ var v = new Vue({
             params.append("path", path);
             axios({
                 method: "post",
-                url: "/file/dir/create",
+                url: "/dir/create",
                 data: params
             }).then(res => {
                     var data = res.data;
@@ -219,6 +223,7 @@ var v = new Vue({
                         if(this.jumpToNewDir){
                             this.currentDirPath = path;
                         }
+                        this.newDirInputValue = "";
                         this.getFileList();
                     }
                     else{
@@ -289,7 +294,7 @@ var v = new Vue({
                 }
                 po = {
                     "name": paths[i],
-                    "url": "/?path=" + encodeURIComponent(addPath)
+                    "path": addPath
                 };
                 pl.push(po);
             }
@@ -302,12 +307,17 @@ var v = new Vue({
             }).then(res => {
                 this.fileSep = res.data;
             });
+        },
+        copyToList(){
+            this.copiedRows = this.selectedRows;
+        },
+        pasteData(){
+            this.copiedRows = [];
         }
     },
 
     mounted: function (){
-        this.currentDirPath = getQueryVariable("path")
         this.getFileSep();
-        this.getFileList();
+        this.getFileList("/");
     }
 })

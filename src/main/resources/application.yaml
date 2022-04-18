@@ -3,5 +3,5 @@ server:
 spring:
   servlet:
     multipart:
-      max-file-size: 3MB
-      max-request-size: 6MB
+      max-file-size: 4096MB
+      max-request-size: 4096MB

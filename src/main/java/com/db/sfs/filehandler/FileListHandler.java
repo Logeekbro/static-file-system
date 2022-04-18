@@ -10,7 +10,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -67,7 +66,6 @@ public class FileListHandler {
         dbDir.setCreateTime(Files.readAttributes(dir, BasicFileAttributes.class).creationTime().toMillis());
         dbDir.setLastModifiedTime(Files.getLastModifiedTime(dir).toMillis());
         dbDir.setFileCount((int) Files.list(dir).count());
-        // 指定List初始大小，防止多次扩容影响性能
         List<DBFile> fileList = new LinkedList<>();
         List<DBDir> dirList = new LinkedList<>();
         Files.list(dir).forEach(
