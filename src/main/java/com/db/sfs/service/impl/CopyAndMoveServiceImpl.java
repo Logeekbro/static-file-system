@@ -1,5 +1,6 @@
 package com.db.sfs.service.impl;
 
+import com.db.sfs.common.GlobalVars;
 import com.db.sfs.filehandler.CopyHandler;
 import com.db.sfs.filehandler.MoveHandler;
 import com.db.sfs.service.CopyAndMoveService;
@@ -21,6 +22,10 @@ public class CopyAndMoveServiceImpl implements CopyAndMoveService {
 
     @Override
     public Path copy(String source, String target) throws Exception {
+        source = GlobalVars.BASE_DIR + source;
+        target = GlobalVars.BASE_DIR + target;
+        System.out.println("source:" + source);
+        System.out.println("target:" + target);
         try{
             return copyHandler.copy(source, target);
         }
@@ -39,6 +44,10 @@ public class CopyAndMoveServiceImpl implements CopyAndMoveService {
 
     @Override
     public Path move(String source, String target) throws Exception {
+        source = GlobalVars.BASE_DIR + source;
+        target = GlobalVars.BASE_DIR + target;
+        System.out.println("source:" + source);
+        System.out.println("target:" + target);
         try{
             return moveHandler.move(source, target);
         }

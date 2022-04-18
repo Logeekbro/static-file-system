@@ -130,7 +130,13 @@
                     复制
                 </el-button>
 
-
+                <el-button @click="cutToList"
+                           size="small"
+                           type="primary"
+                           :disabled="selectedRows.length === 0 ? true : false"
+                           plain>
+                    剪切
+                </el-button>
 
                 <el-button size="small"
                            type="primary"

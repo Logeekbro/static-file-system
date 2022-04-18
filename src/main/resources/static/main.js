@@ -16,7 +16,8 @@ var v = new Vue({
             "newDirInputValue": "",
             "jumpToNewDir": false,
             "copiedRows": [],
-            "emptyText": ""
+            "emptyText": "",
+            "pasteMode": "copy"
 
         }
     },
@@ -108,7 +109,6 @@ var v = new Vue({
         },
         handleSelectionChange(selection){
             this.selectedRows = selection;
-
         },
         handleEdit(index, rowData){
             this.$message({
@@ -308,12 +308,86 @@ var v = new Vue({
                 this.fileSep = res.data;
             });
         },
+        moveAndCopyFile(source, target){
+            var url = "/file/copy";
+            var params = new URLSearchParams();
+            params.append("source", source);
+            params.append("target", target);
+            if(this.copyMode === "cut"){
+                url = "/file/move";
+            }
+            axios({
+                method: "post",
+                url: url,
+                data: params
+            }).then(res => {
+                var data = res.data;
+                if(data.success){
+                    this.getFileList();
+                }
+                else{
+                    this.$message({
+                        message: '操作失败: ' + data.msg,
+                        type: 'error',
+                        duration: 2500
+                    });
+                }
+            });
+        },
         copyToList(){
-            this.copiedRows = this.selectedRows;
+            var list = this.selectedRows;
+            for(var i = 0;i < list.length;i++){
+                if(list[i].type === "file"){
+                    list[i].dir = this.dirInfo.path;
+                }
+                this.copiedRows.push(list[i]);
+            }
+
+            // 清除选中
+            this.$refs.multipleTable.clearSelection();
+            this.copyMode = "copy";
+            this.$message({
+                message: '已复制',
+                type: 'success',
+                duration: 1000
+            });
+        },
+        cutToList(){
+            var list = this.selectedRows;
+            for(var i = 0;i < list.length;i++){
+                if(list[i].type === "file"){
+                    list[i].dir = this.dirInfo.path;
+                }
+                this.copiedRows.push(list[i]);
+            }
+            // 清除选中
+            this.$refs.multipleTable.clearSelection();
+            this.copyMode = "cut";
+            this.$message({
+                message: '已剪切',
+                type: 'success',
+                duration: 1000
+            });
         },
         pasteData(){
+            console.log("start " + this.copyMode)
+            var list = this.copiedRows;
+            for(var i = 0; i < list.length;i++){
+                if(list[i].type === "dir"){
+                    var source = list[i].dirPath;
+                    var target = this.dirInfo.path + list[i].dirName;
+                    this.moveAndCopyFile(source, target);
+                }
+                else if(list[i].type === "file"){
+                    var source = list[i].dir + list[i].fileName;
+                    var target = this.dirInfo.path + list[i].fileName;
+                    this.moveAndCopyFile(source, target);
+                }
+                console.log(list[i]);
+            }
             this.copiedRows = [];
-        }
+        },
+
     },
 
     mounted: function (){

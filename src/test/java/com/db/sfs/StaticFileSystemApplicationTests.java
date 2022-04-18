@@ -17,9 +17,7 @@ class StaticFileSystemApplicationTests {
 
     @Test
     void testMoveFile() throws IOException {
-        Path sour = Paths.get("D:\\A_Pro_luangao\\test_dir\\222");
-        Path target = Paths.get("D:\\A_Pro_luangao\\test_dir\\1\\222\\");
-        Files.move(sour, target);
+
 
     }
 
