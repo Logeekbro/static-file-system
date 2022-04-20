@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileUploadServiceImpl implements FileUploadService {
 
     @Autowired
-    UploadHandler uploadHandler;
+    private UploadHandler uploadHandler;
 
     @Override
     public void uploadMultipartFiles(MultipartFile file, String path) throws Exception {

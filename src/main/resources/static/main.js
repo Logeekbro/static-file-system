@@ -74,7 +74,7 @@ var v = new Vue({
                 method: "get",
                 url: "/client/currentDir",
             }).then(res => {
-                this.currentDirPath = res.data.data;
+                this.currentDirPath = res.data.data == null ? "/" : res.data.data;
                 this.getFileList();
             });
         },
@@ -91,7 +91,6 @@ var v = new Vue({
             this.fileList = [];
         },
         on_success(rep, file){
-            this.clearFileList();
             if(rep.success){
                 this.$message({
                     message: '上传成功！',
@@ -106,6 +105,8 @@ var v = new Vue({
                     duration: 2500
                 });
             }
+            this.clearFileList();
+            this.getFileList();
 
         },
         on_error(err,file){

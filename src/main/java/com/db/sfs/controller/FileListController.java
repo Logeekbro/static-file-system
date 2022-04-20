@@ -16,7 +16,7 @@ import java.net.URLDecoder;
 public class FileListController {
 
     @Autowired
-    FileListService fileListService;
+    private FileListService fileListService;
 
     @GetMapping("/getFileList")
     public Result<DBDir> getFileList(@RequestParam(value = "path", defaultValue = "") String path) throws UnsupportedEncodingException {

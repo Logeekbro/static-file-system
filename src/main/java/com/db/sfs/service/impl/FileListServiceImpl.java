@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class FileListServiceImpl implements FileListService {
 
     @Autowired
-    FileListHandler fileListHandler;
+    private FileListHandler fileListHandler;
 
     @Override
     public DBDir getFileList(String path) throws Exception {

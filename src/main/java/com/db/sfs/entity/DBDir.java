@@ -1,8 +1,9 @@
 package com.db.sfs.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class DBDir {
+public class DBDir implements Serializable {
     private String dirName;
     private String dirPath;
     private final String type = "dir";

@@ -2,7 +2,9 @@ package com.db.sfs.entity;
 
 import com.db.sfs.common.GlobalVars;
 
-public class DBFile {
+import java.io.Serializable;
+
+public class DBFile implements Serializable {
     private String fileName;
     private String url;
     private final String type = "file";

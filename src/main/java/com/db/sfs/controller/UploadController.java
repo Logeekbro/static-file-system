@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UploadController {
 
     @Autowired
-    FileUploadService fileUploadService;
+    private FileUploadService fileUploadService;
 
     @PostMapping("/upload")
     public Result<String> upload(MultipartFile file, @RequestParam(name = "path", defaultValue = "") String path){
