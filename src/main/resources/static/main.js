@@ -16,7 +16,7 @@ var v = new Vue({
             "newDirInputValue": "",
             "jumpToNewDir": false,
             "copiedRows": [],
-            "emptyText": "",
+            "emptyText": "加载中...",
             "pasteMode": "copy"
 
         }
@@ -24,7 +24,6 @@ var v = new Vue({
     methods: {
         getFileList(path=null){
             this.tableData = [];
-            this.emptyText = "加载中...";
             if(path == null){
                 path = this.currentDirPath;
             }
@@ -36,7 +35,7 @@ var v = new Vue({
                 method: "get",
                 url : "/file/getFileList",
                 params: {
-                    path: path
+                    path: encodeURIComponent(path)
                 }
             }).then(res => {
                 this.emptyText = "暂无数据";
